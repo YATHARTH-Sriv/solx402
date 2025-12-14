@@ -12,12 +12,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const url = new URL(request.url);
   const imageId = url.searchParams.get("imageId");
   const userId = url.searchParams.get("userId");
+  const referrerAddress = url.searchParams.get("ref"); // Referral parameter
 
   if (!imageId) {
     return NextResponse.json({ error: "Image ID required" }, { status: 400 });
   }
 
-  
   const { data: image, error } = await supabase
     .from("Image")
     .select("*")
@@ -29,10 +29,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const txnHash = request.headers.get("x-payment-hash") || `tx_${Date.now()}`;
+  const basePriceUSDC = 0.01; // $0.01 in USDC
 
-  
   if (userId) {
-    
     const { data: existing } = await supabase
       .from("Purchase")
       .select("id")
@@ -41,24 +40,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (!existing) {
-    
-      await supabase.from("Purchase").insert([
+      // Calculate split: 90% to artist, 10% to referrer (if exists)
+      const artistEarnings = referrerAddress ? basePriceUSDC * 0.9 : basePriceUSDC;
+      const referralEarnings = referrerAddress ? basePriceUSDC * 0.1 : 0;
+
+      // Insert purchase with referral data
+      const { error: purchaseError } = await supabase.from("Purchase").insert([
         {
           userId: parseInt(userId),
           imageId: parseInt(imageId),
-          pricePaid: image.price,
+          pricePaid: basePriceUSDC,
           txnHash,
+          referrerAddress: referrerAddress || null,
+          referralAmount: referralEarnings,
           createdAt: new Date().toISOString(),
         },
       ]);
 
-    
+      if (purchaseError) {
+        console.error("Purchase insert error:", purchaseError);
+      }
+
+      // Update image purchase count
       await supabase
         .from("Image")
         .update({ noOfPeopleBought: (image.noOfPeopleBought || 0) + 1 })
         .eq("id", parseInt(imageId));
 
-      
+      // Update artist earnings
       const { data: owner } = await supabase
         .from("User")
         .select("earned, txnHashes")
@@ -67,24 +76,43 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       if (owner) {
         const currentEarned = parseFloat(owner.earned) || 0;
-        const newEarned = currentEarned + 0.01; // Fixed price of $0.01
-        
+        const newEarned = currentEarned + artistEarnings;
+
         await supabase
           .from("User")
           .update({
-            earned: newEarned.toFixed(2), 
+            earned: newEarned.toFixed(4),
             txnHashes: [...(owner.txnHashes || []), txnHash],
           })
           .eq("id", image.ownerId);
       }
+
+      // Update referrer earnings if applicable
+      if (referrerAddress) {
+        const { data: referrer } = await supabase
+          .from("User")
+          .select("referralEarnings")
+          .eq("addressToReceive", referrerAddress)
+          .single();
+
+        if (referrer) {
+          const currentReferralEarnings = parseFloat(referrer.referralEarnings) || 0;
+          const newReferralEarnings = currentReferralEarnings + referralEarnings;
+
+          await supabase
+            .from("User")
+            .update({
+              referralEarnings: newReferralEarnings.toFixed(4),
+            })
+            .eq("addressToReceive", referrerAddress);
+        }
+      }
     }
   }
 
-  
   const homeUrl = new URL("/", request.url);
   homeUrl.searchParams.set("purchased", imageId);
-  
-  
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -138,7 +166,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         <script>
           let count = 3;
           const countdownEl = document.getElementById('countdown');
-          
+
           const interval = setInterval(() => {
             count--;
             if (count > 0) {
@@ -147,7 +175,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               clearInterval(interval);
             }
           }, 1000);
-          
+
           setTimeout(() => {
             window.location.href = "${homeUrl.toString()}";
           }, 3000);
@@ -155,7 +183,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       </body>
     </html>
   `;
-  
+
   return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html",

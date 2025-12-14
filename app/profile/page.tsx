@@ -15,7 +15,8 @@ import {
   Download,
   ExternalLink,
   Settings,
-  TrendingUp
+  TrendingUp,
+  Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -42,6 +43,7 @@ interface UserData {
   email: string;
   addressToReceive: string;
   earned: number;
+  referralEarnings?: number;
   txnHashes: string[];
 }
 
@@ -250,6 +252,23 @@ export default function ProfilePage() {
               )}
             </div>
 
+            {/* Referral Earnings Card */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-blue-100 rounded-xl">
+                  <Share2 className="size-6 text-blue-600" />
+                </div>
+                <TrendingUp className="size-5 text-blue-500" />
+              </div>
+              <p className="text-sm text-gray-500">Referral Earnings</p>
+              <p className="text-3xl font-bold text-gray-900">
+                ${userData?.referralEarnings?.toFixed(4) || "0.00"}
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                10% commission per referral
+              </p>
+            </div>
+
             {/* Receiving Wallet Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div className="flex items-center justify-between mb-4">
@@ -303,6 +322,42 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Referral Links Section */}
+          {uploadedImages.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Referral Links</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Share these links and earn 10% commission on every sale!
+              </p>
+              <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
+                {uploadedImages.map((image) => (
+                  <div key={image.id} className="bg-white rounded-xl p-4 border border-blue-200">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {image.title}
+                        </p>
+                        <p className="text-xs text-gray-600 font-mono bg-gray-50 p-1.5 mt-1 rounded truncate">
+                          {`${window.location.origin}/image/${image.id}?ref=${user.addressToReceive}`}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const url = `${window.location.origin}/image/${image.id}?ref=${user.addressToReceive}`;
+                          navigator.clipboard.writeText(url);
+                        }}
+                        className="p-2 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
+                        title="Copy link"
+                      >
+                        <Share2 className="size-4 text-blue-600" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Tabs */}
           <div className="flex gap-4 border-b mb-6">

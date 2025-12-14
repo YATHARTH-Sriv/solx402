@@ -105,8 +105,12 @@ function HomeContent() {
   }
 
   function handlePayment(image: ImageItem) {
-    // Navigate to x402 payment endpoint
-    router.push(`/api/purchase?imageId=${image.id}&userId=${user?.id}`);
+    // Get referrer from URL if exists
+    const referrer = searchParams.get("ref");
+    const paymentUrl = `/api/purchase?imageId=${image.id}&userId=${user?.id}${
+      referrer ? `&ref=${referrer}` : ""
+    }`;
+    router.push(paymentUrl);
   }
 
   async function handleDownload(image: ImageItem) {
