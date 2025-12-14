@@ -1,34 +1,40 @@
 # Pinspire - x402 Art Gallery (Solana)
 
-## 🎯 Project Highlights
+## Project Highlights
 
 - **Pinterest-style art gallery** where photographers/artists showcase and sell high-res images
 - **x402 micropayment integration** - $0.01 USDC per image download on Solana
+- **Referral/Affiliate system** - Earn 10% commission on every sale via shareable links
 - **Beautiful masonry grid UI** with Pinterest-inspired aesthetics
 
-## 🔐 Authentication
+## Authentication
 
 - Simple email-based auth (no password required)
 - Signup collects: name, email, Solana wallet address (for receiving payments)
 - LocalStorage session persistence
 
-## 💳 Payment Flow
+## Payment Flow
 
 - Solana wallet connection (Phantom, Solflare) for purchases
 - x402-next middleware handles payment verification
+- Automatic payment splits (90% artist, 10% referrer if applicable)
 - 3-second countdown success page after purchase
 - Auto-redirect back to gallery
+- Referral link support: `?ref=walletAddress` parameter preserved through entire flow
 
-## 👤 User Features
+##  User Features
 
-- **Profile page**: View uploads, purchases, and earnings
+- **Gallery page**: Browse and purchase art, view details on dedicated image pages
+- **Referral links**: Generate and share shareable links per artwork to earn 10% commissions
+- **Profile page**: View uploads, purchases, earnings, referral earnings, and manage referral links
 - **Upload page**: Drag-and-drop image upload with Vercel Blob storage
-- **Claim earnings**: Transfer earned USDC to artist's Solana wallet
+- **Claim earnings**: Transfer earned USDC + referral commissions to artist's Solana wallet
+- **Image detail page**: Full image view with purchase/download options, preserves referral context
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - Next.js 16 (App Router) + React 19
-- Supabase (PostgreSQL)
+- Supabase (PostgreSQL with referral columns)
 - Vercel Blob (image storage)
 - Solana Wallet Adapter (Phantom, Solflare)
 - x402-next (payment middleware)
@@ -36,17 +42,29 @@
 - Tailwind CSS v4
 - Solana Devnet + USDC
 
-## 📊 Database Schema
+##  Database Schema
 
-- **User**: id, name, email, addressToReceive (Solana), earned, txnHashes
+- **User**: id, name, email, addressToReceive, earned, referralEarnings, txnHashes
 - **Image**: id, title, price, url, ownerId, noOfPeopleBought
-- **Purchase**: id, userId, imageId, pricePaid, txnHash
+- **Purchase**: id, userId, imageId, pricePaid, txnHash, referrerAddress, referralAmount
 
-## ✅ Key Achievements
+##  x402 on Solana - Key Achievements
 
-1. Full x402 payment flow working end-to-end on Solana
-2. Artists receive payments to their Solana wallet address
-3. Claim earnings feature transfers USDC via SPL token
-4. Pinterest-style responsive masonry layout
-5. Wallet disconnect/change option for buyers
-6. Post-purchase success page with auto-redirect
+1.   **Full x402 payment flow** - End-to-end micropayment system with payment verification
+2.   **Programmable payment splits** - Demonstrates x402's ability to handle complex payment logic (90/10 splits)
+3.   **Dynamic referral system** - Shareable links with automatic commission tracking and distribution
+4.   **SPL token integration** - USDC transfers via viem + SPL token standard
+5.   **Trustless automation** - No middleman, payments happen on-chain automatically
+6.   **Scalable micropayments** - $0.01 price point with zero friction
+7.   **Image detail pages** - Standalone pages for each artwork preserving referral context
+8.   **Economic incentive layer** - Shows how programmable money creates new behaviors (affiliate system)
+9.   **Wallet management** - Connect/disconnect/switch wallets for seamless payment experience
+10.   **Earnings tracking** - Separate counters for direct sales vs referral commissions
+
+##  Why This Wins for Hackathons
+
+- Proves x402 can handle complex real-world payment scenarios
+- Shows economic incentives layer (influencer/creator monetization model)
+- Demonstrates trustless automation without middleware
+- Real use case with practical applications
+- Full tech stack integration: Solana, x402, smart earnings distribution
