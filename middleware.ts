@@ -19,6 +19,13 @@ const x402PaymentMiddleware = paymentMiddleware(
       },
       network,
     },
+    '/api/agent/buy': {
+      price: '$0.01',
+      config: {
+        description: 'AI Agent Purchase - Training Dataset License',
+      },
+      network,
+    },
   },
   {
     url: facilitatorUrl,
@@ -26,7 +33,7 @@ const x402PaymentMiddleware = paymentMiddleware(
   {
     cdpClientKey,
     appLogo: '/x402-icon-blue.png',
-    appName: 'Pinspire Art Gallery',
+    appName: 'Pinspire AI Marketplace',
     sessionTokenEndpoint: '/api/x402/session-token',
   },
 )
@@ -40,5 +47,5 @@ export const middleware = (req: NextRequest) => {
 
 // Configure which paths the middleware should run on
 export const config = {
-  matcher: ['/api/purchase'],
+  matcher: ['/api/purchase', '/api/agent/buy'],
 }

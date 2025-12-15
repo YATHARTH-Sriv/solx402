@@ -222,7 +222,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={walletAddress}
                   onChange={(e) => setWalletAddress(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none font-mono text-sm text-gray-900"
-                  placeholder="0x..."
+                  placeholder="soladdress"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
