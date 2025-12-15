@@ -2,6 +2,7 @@
 
 > **The future of creator monetization: Agents autonomously purchasing high-quality training datasets, creators earn instant micropayments**
 
+
 ## 🎯 Overview
 
 Pinspire is a **next-generation art marketplace** that combines:
@@ -115,5 +116,5 @@ NEXT_PUBLIC_CDP_CLIENT_KEY=
 RESOURCE_WALLET_PRIVATE_KEY=
 
 ```
-
+agent implementation code : https://github.com/YATHARTH-Sriv/agentimpl
 
