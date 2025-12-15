@@ -57,7 +57,7 @@ export default function WalletModal({
             fill
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
             <p className="text-white font-semibold text-lg">{image.title}</p>
           </div>
