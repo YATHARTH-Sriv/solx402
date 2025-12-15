@@ -1,4 +1,4 @@
-# Pinspire -  Data Marketplace on Solana
+# Pinspire -  Image Marketplace on Solana
 
 > **The future of creator monetization: Agents autonomously purchasing high-quality training datasets, creators earn instant micropayments**
 
