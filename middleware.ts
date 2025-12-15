@@ -1,35 +1,85 @@
+// import { Address } from 'viem'
+// import { paymentMiddleware, Resource, Network } from 'x402-next'
+// import { NextRequest } from 'next/server'
+
+// const address = process.env.NEXT_PUBLIC_RECEIVER_ADDRESS as Address
+// const network = (process.env.NEXT_PUBLIC_NETWORK || 'solana-devnet') as Network
+// const facilitatorUrl = (process.env.NEXT_PUBLIC_FACILITATOR_URL || 'https://x402.org/facilitator') as Resource
+// const cdpClientKey = process.env.NEXT_PUBLIC_CDP_CLIENT_KEY as string
+
+// console.log('x402 middleware config:', { address, network, facilitatorUrl, cdpClientKey: cdpClientKey ? 'set' : 'missing' })
+
+// const x402PaymentMiddleware = paymentMiddleware(
+//   address,
+//   {
+//     '/api/purchase': {
+//       price: '$0.01',
+//       config: {
+//         description: 'Download High Resolution Art',
+//       },
+//       network,
+//     },
+//     '/api/agent/buy': {
+//       price: '$0.01',
+//       config: {
+//         description: 'AI Agent Purchase - Training Dataset License',
+//       },
+//       network,
+//     },
+//   },
+//   {
+//     url: facilitatorUrl,
+//   },
+//   {
+//     cdpClientKey,
+//     appLogo: '/x402-icon-blue.png',
+//     appName: 'Pinspire AI Marketplace',
+//     sessionTokenEndpoint: '/api/x402/session-token',
+//   },
+// )
+
+// export const middleware = (req: NextRequest) => {
+//   const delegate = x402PaymentMiddleware as unknown as (
+//     request: NextRequest,
+//   ) => ReturnType<typeof x402PaymentMiddleware>
+//   return delegate(req)
+// }
+
+// // Configure which paths the middleware should run on
+// export const config = {
+//   matcher: ['/api/purchase', '/api/agent/buy'],
+// }
+
+
 import { Address } from 'viem'
 import { paymentMiddleware, Resource, Network } from 'x402-next'
 import { NextRequest } from 'next/server'
 
 const address = process.env.NEXT_PUBLIC_RECEIVER_ADDRESS as Address
 const network = (process.env.NEXT_PUBLIC_NETWORK || 'solana-devnet') as Network
-const facilitatorUrl = (process.env.NEXT_PUBLIC_FACILITATOR_URL || 'https://x402.org/facilitator') as Resource
+const facilitatorUrl =
+  (process.env.NEXT_PUBLIC_FACILITATOR_URL || 'https://x402.org/facilitator') as Resource
 const cdpClientKey = process.env.NEXT_PUBLIC_CDP_CLIENT_KEY as string
 
-console.log('x402 middleware config:', { address, network, facilitatorUrl, cdpClientKey: cdpClientKey ? 'set' : 'missing' })
+if (!address || !cdpClientKey) {
+  throw new Error('x402 middleware misconfigured: missing env vars')
+}
 
 const x402PaymentMiddleware = paymentMiddleware(
   address,
   {
     '/api/purchase': {
       price: '$0.01',
-      config: {
-        description: 'Download High Resolution Art',
-      },
+      config: { description: 'Download High Resolution Art' },
       network,
     },
     '/api/agent/buy': {
       price: '$0.01',
-      config: {
-        description: 'AI Agent Purchase - Training Dataset License',
-      },
+      config: { description: 'AI Agent Purchase - Training Dataset License' },
       network,
     },
   },
-  {
-    url: facilitatorUrl,
-  },
+  { url: facilitatorUrl },
   {
     cdpClientKey,
     appLogo: '/x402-icon-blue.png',
@@ -39,13 +89,9 @@ const x402PaymentMiddleware = paymentMiddleware(
 )
 
 export const middleware = (req: NextRequest) => {
-  const delegate = x402PaymentMiddleware as unknown as (
-    request: NextRequest,
-  ) => ReturnType<typeof x402PaymentMiddleware>
-  return delegate(req)
+  return (x402PaymentMiddleware as any)(req)
 }
 
-// Configure which paths the middleware should run on
 export const config = {
   matcher: ['/api/purchase', '/api/agent/buy'],
 }
